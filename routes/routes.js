@@ -29,6 +29,39 @@ const client = new MongoClient(uri, {
         res.status(200).send(books);
     });
 
+    router.get('/books/:isbn', async (req, res) => {
+
+        let isbn = req.params.isbn ?? null;
+        console.log(isbn);
+
+        let success = true;
+        let code = 200;
+        let errors = [];
+        let response = null;
+
+        const book = await booksCollection
+                        .find({"isbn": isbn})
+                        .project(booksProjectionSchema())
+                        .toArray();
+
+        if(book.length == 0) {
+            success = false;
+            code = 404;
+            errors.push("Ce livre n'existe pas");
+        }
+
+        if(success) {
+            response = book;
+        }
+
+        let data = {
+            "error": errors[0] ?? null,
+            "book": response
+        }
+
+        res.status(code).send(data);
+
+    });
 
     router.post('/books', async(req, res) => {
 
@@ -94,7 +127,7 @@ const client = new MongoClient(uri, {
         if(success) {
             let finalBook = bookModel(isbn, title, author, overview, picture, readCount)
             await booksCollection.insertOne(finalBook);
-            response = await booksCollection.findOne(finalBook).project(booksProjectionSchema());
+            response = await booksCollection.findOne(finalBook, booksProjectionSchema()).project(booksProjectionSchema());
         }
 
        let data = {
@@ -105,6 +138,8 @@ const client = new MongoClient(uri, {
         res.status(code).send(data);
 
     });
+
+    
 
 
 })();
