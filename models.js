@@ -9,6 +9,13 @@ function bookModel(isbn, title, author, overview, picture, read_count){
     };
 }
 
+function booksProjectionSchema(){
+    return {
+        "_id": 0
+    }
+}
+
 module.exports = {
-    bookModel
+    bookModel,
+    booksProjectionSchema
 }

@@ -1,5 +1,5 @@
 const express = require("express");
-const {bookModel} = require("../models.js");
+const {bookModel,booksProjectionSchema} = require("../models.js");
 let router = express.Router();
 
 require('dotenv').config();
@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
     router.get('/books', async (req, res) => {
 
         
-        const books = await booksCollection.find().toArray();
+        const books = await booksCollection.find().project(booksProjectionSchema()).toArray();
 
         res.status(200).send(books);
     });
@@ -94,7 +94,7 @@ const client = new MongoClient(uri, {
         if(success) {
             let finalBook = bookModel(isbn, title, author, overview, picture, readCount)
             await booksCollection.insertOne(finalBook);
-            response = await booksCollection.findOne(finalBook);
+            response = await booksCollection.findOne(finalBook).project(booksProjectionSchema());
         }
 
        let data = {
