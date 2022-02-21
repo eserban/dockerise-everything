@@ -32,7 +32,6 @@ const client = new MongoClient(uri, {
     router.get('/books/:isbn', async (req, res) => {
 
         let isbn = req.params.isbn ?? null;
-        console.log(isbn);
 
         let success = true;
         let code = 200;
@@ -139,9 +138,39 @@ const client = new MongoClient(uri, {
 
     });
 
+    router.delete('/books/:isbn', async (req, res) => {
+        let isbn = req.params.isbn ?? null;
+
+        let success = true;
+        let code = 204;
+        let errors = [];
+        let response = null;
+
+        const book = await booksCollection
+                        .find({"isbn": isbn})
+                        .project(booksProjectionSchema())
+                        .toArray();
+
+        if(book.length == 0) {
+            success = false;
+            code = 404;
+            errors.push("Ce livre n'existe pas");
+        }
+
+        if(success) {
+            await booksCollection.deleteOne({"isbn": isbn});
+        }
+
+        let data = {
+            "error": errors[0] ?? null
+        }
+
+        res.status(code).send(data);
+    });
+
     
 
-
+    client.close();
 })();
 
 module.exports = router;
