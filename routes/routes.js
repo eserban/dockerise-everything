@@ -1,5 +1,6 @@
 const express = require("express");
 const {bookModel,booksProjectionSchema} = require("../models.js");
+const jwt = require('jsonwebtoken');
 let router = express.Router();
 
 require('dotenv').config();
@@ -25,14 +26,42 @@ const client = new MongoClient(uri, {
 
 
     router.get('/books', async (req, res) => {
+        const token = req.header('access-token') ?? null;
 
+        let success = true;
+        let code = 200;
+        let errorMessage = null;
+        let result = [];
+
+        if (!token) {
+            success = false;
+            code = 403;
+            errorMessage = "Authentification Failed"
+        } else {
+            tokenObject = jwt.verify(token, process.env.JWT_KEY) ?? null;
+            if (!tokenObject) {
+                success = false;
+                code = 500;
+                errorMessage = "Your connection token is not valid";
+            }
+        }
         
-        const books = await booksCollection.find().project(booksProjectionSchema()).toArray();
+        if(success) {
+            result = await booksCollection.find().project(booksProjectionSchema()).toArray();
+        }
 
-        res.status(200).send(books);
+        const data = {
+            "success": success,
+            "requestCode": code,
+            "error": errorMessage,
+            "result" : result,
+        };
+
+        res.status(code).send(data);
     });
 
     router.get('/books/:isbn', async (req, res) => {
+        const token = req.header('access-token') ?? null;
 
         let isbn = req.params.isbn ?? null;
 
@@ -46,28 +75,40 @@ const client = new MongoClient(uri, {
                         .project(booksProjectionSchema())
                         .toArray();
 
-        if(book.length == 0) {
+        if (!token) {
+            success = false;
+            code = 403;
+            errorMessage = "Authentification Failed"
+        } else if(book.length == 0) {
             success = false;
             code = 404;
             errors.push("Ce livre n'existe pas");
+        }else {
+            tokenObject = jwt.verify(token, process.env.JWT_KEY) ?? null;
+            if (!tokenObject) {
+                success = false;
+                code = 500;
+                errorMessage = "Your connection token is not valid";
+            }
         }
 
         if(success) {
             response = book;
         }
 
-        let data = {
+        const data = {
+            "success": success,
+            "requestCode": code,
             "error": errors[0] ?? null,
-            "book": response
-        }
+            "result" : response,
+        };
 
         res.status(code).send(data);
 
     });
 
     router.post('/books', async(req, res) => {
-
-        
+        const token = req.header('access-token') ?? null;
 
         const isbn = req.body.isbn ?? null;
         const title = req.body.title ?? null;
@@ -90,7 +131,20 @@ const client = new MongoClient(uri, {
 
         let book = await booksCollection.find({"isbn": isbn}).toArray();
 
-        if(!isbn || !title || !author) {
+        if (!token) {
+            success = false;
+            code = 403;
+            errorMessage = "Authentification Failed"
+        } else{
+            tokenObject = jwt.verify(token, process.env.JWT_KEY) ?? null;
+            if (!tokenObject) {
+                success = false;
+                code = 500;
+                errorMessage = "Your connection token is not valid";
+            }
+        }
+
+        if (!isbn || !title || !author) {
             success = false;
             code = 422;
             errors.push("Les éléments obligatoires ne sont pas fournis");
@@ -132,16 +186,20 @@ const client = new MongoClient(uri, {
             response = await booksCollection.findOne(finalBook).project(booksProjectionSchema());
         }
 
-       let data = {
-           "errors": errors,
-           "book": response
-       }
+        const data = {
+            "success": success,
+            "requestCode": code,
+            "error": errors,
+            "result" : response,
+        };
 
         res.status(code).send(data);
 
     });
 
     router.patch('/books/:isbn', async(req, res) => {
+        const token = req.header('access-token') ?? null;
+
         let isbn = req.params.isbn ?? null;
 
         const jsonBody = req.body;
@@ -167,6 +225,19 @@ const client = new MongoClient(uri, {
         let response = null;
 
         let book = await booksCollection.find({"isbn": isbn}).toArray();
+
+        if (!token) {
+            success = false;
+            code = 403;
+            errorMessage = "Authentification Failed"
+        } else {
+            tokenObject = jwt.verify(token, process.env.JWT_KEY) ?? null;
+            if (!tokenObject) {
+                success = false;
+                code = 500;
+                errorMessage = "Your connection token is not valid";
+            }
+        }
 
         if(title && (title.length > 200 || typeof title !== "string")) {
             success = false;
@@ -197,17 +268,21 @@ const client = new MongoClient(uri, {
             response = await booksCollection.find({"isbn": isbn}).project(booksProjectionSchema()).toArray();
         }
 
-        let data = {
-            "errors": errors,
-            "book": response[0]
-        }
- 
-         res.status(code).send(data);
+        const data = {
+            "success": success,
+            "requestCode": code,
+            "error": errors,
+            "result" : response[0],
+        };
+
+        res.status(code).send(data);
 
 
     });
 
     router.delete('/books/:isbn', async (req, res) => {
+        const token = req.header('access-token') ?? null;
+
         let isbn = req.params.isbn ?? null;
 
         let success = true;
@@ -220,6 +295,19 @@ const client = new MongoClient(uri, {
                         .project(booksProjectionSchema())
                         .toArray();
 
+        if (!token) {
+            success = false;
+            code = 403;
+            errorMessage = "Authentification Failed"
+        } else {
+            tokenObject = jwt.verify(token, process.env.JWT_KEY) ?? null;
+            if (!tokenObject) {
+                success = false;
+                code = 500;
+                errorMessage = "Your connection token is not valid";
+            }
+        }
+
         if(book.length == 0) {
             success = false;
             code = 404;
@@ -230,9 +318,12 @@ const client = new MongoClient(uri, {
             await booksCollection.deleteOne({"isbn": isbn});
         }
 
-        let data = {
-            "error": errors[0] ?? null
-        }
+        const data = {
+            "success": success,
+            "requestCode": code,
+            "error": errors[0] ?? null,
+            "result" : response,
+        };
 
         res.status(code).send(data);
     });
