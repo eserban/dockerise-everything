@@ -15,7 +15,26 @@ function booksProjectionSchema(){
     }
 }
 
+function jwtSignSchema(id, username, email){
+    return {
+        "id": id,
+        "username": username,
+        "email": email,
+    }
+}
+
+function userSchema(username, email, password){
+    return {
+        "username": username,
+        "email": email,
+        "createdAt": new Date().toISOString().slice(0, 16).replace('T', ' '),
+        "password": password
+    };
+}
+
 module.exports = {
     bookModel,
-    booksProjectionSchema
+    booksProjectionSchema,
+    jwtSignSchema,
+    userSchema
 }
