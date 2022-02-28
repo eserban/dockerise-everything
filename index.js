@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/', route);
-app.use('/auth', route);
+app.use('/auth', auth);
 
 // demander au serveur applicatif d'attendre des requêtes depuis le port spécifié plus haut
 app.listen(PORT, () => {
