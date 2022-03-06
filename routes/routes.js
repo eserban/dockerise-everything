@@ -204,7 +204,7 @@ const client = new MongoClient(uri, {
         let isbn = req.params.isbn ?? null;
 
         let success = true;
-        let code = 200;
+        let code = 204;
         let errors = [];
         let response = null;
 
