@@ -20,9 +20,10 @@ Le lecteur peut :
 - Afficher les détails d'un livre
 - Ajouter un livre dans sa blibliotheque
 - Modifier un livre dans sa blibliotheque
-- Suppriler un livre de sa blibliotheque
+- Supprimer un livre de sa blibliotheque
 
 Nous avons utilisé une base de donnée mongoDB, comme langage de programmation nous avons utilisé Nodejs, pour ce qui est de l'IDE nous sommes passés par Visual Code.
+Au niveau de la communcation de l'équipe nous sommes passés par Discord via des appels vocaux.
 
 BONUS : On y a rajouté un système d'inscription/connexion.
 
