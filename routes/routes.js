@@ -23,7 +23,6 @@ const client = new MongoClient(uri, {
     await client.connect();
     const booksCollection = await client.db(dbName).collection("books");
 
-
     router.get('/books', async (req, res) => {
         const books = await booksCollection.find().project(booksProjectionSchema()).toArray();
 
@@ -70,6 +69,7 @@ const client = new MongoClient(uri, {
         let readCount = req.body.read_count ?? 1;
 
         console.log(isbn);
+
         console.log(typeof title);
         console.log(typeof author);
         console.log(typeof overview);
@@ -123,6 +123,7 @@ const client = new MongoClient(uri, {
             let finalBook = bookModel(isbn, title, author, overview, picture, readCount)
             await booksCollection.insertOne(finalBook);
             response = await booksCollection.findOne(finalBook);
+
         }
 
        let data = {
