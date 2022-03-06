@@ -5,6 +5,8 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/', route);
 
 // demander au serveur applicatif d'attendre des requêtes depuis le port spécifié plus haut

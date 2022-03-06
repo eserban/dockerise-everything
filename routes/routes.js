@@ -23,10 +23,7 @@ const client = new MongoClient(uri, {
     await client.connect();
     const booksCollection = await client.db(dbName).collection("books");
 
-
     router.get('/books', async (req, res) => {
-
-        
         const books = await booksCollection.find().project(booksProjectionSchema()).toArray();
 
         res.status(200).send(books);
@@ -41,10 +38,7 @@ const client = new MongoClient(uri, {
         let errors = [];
         let response = null;
 
-        const book = await booksCollection
-                        .find({"isbn": isbn})
-                        .project(booksProjectionSchema())
-                        .toArray();
+        const book = await booksCollection.find({"isbn": isbn}).project(booksProjectionSchema()).toArray();
 
         if(book.length == 0) {
             success = false;
@@ -67,16 +61,15 @@ const client = new MongoClient(uri, {
 
     router.post('/books', async(req, res) => {
 
-        
+        let isbn = req.body.isbn ?? null;
+        let title = req.body.title ?? null;
+        let author = req.body.author ?? null;
+        let overview = req.body.overview ?? null;
+        let picture = req.body.picture ?? null;
+        let readCount = req.body.read_count ?? 1;
 
-        const isbn = req.body.isbn ?? null;
-        const title = req.body.title ?? null;
-        const author = req.body.author ?? null;
-        const overview = req.body.overview ?? null;
-        const picture = req.body.picture ?? null;
-        const readCount = req.body.read_count ?? 1;
+        console.log(isbn);
 
-        console.log(typeof isbn);
         console.log(typeof title);
         console.log(typeof author);
         console.log(typeof overview);
@@ -120,7 +113,7 @@ const client = new MongoClient(uri, {
             errors.push("La 4ème de couverture ne doit pas depasser les 1500 caractères");
         }
 
-        if(success && book.lengh > 0){
+        if(success && book.length > 0){
             success = false;
             code = 422;
             errors.push("Ce livre existe deja");
@@ -129,7 +122,8 @@ const client = new MongoClient(uri, {
         if(success) {
             let finalBook = bookModel(isbn, title, author, overview, picture, readCount)
             await booksCollection.insertOne(finalBook);
-            response = await booksCollection.findOne(finalBook).project(booksProjectionSchema());
+            response = await booksCollection.findOne(finalBook);
+
         }
 
        let data = {
@@ -138,7 +132,6 @@ const client = new MongoClient(uri, {
        }
 
         res.status(code).send(data);
-
     });
 
     router.patch('/books/:isbn', async(req, res) => {
@@ -194,7 +187,7 @@ const client = new MongoClient(uri, {
 
         if(success) {
             await booksCollection.updateOne({"isbn": isbn}, {$set: jsonBody});
-            response = await booksCollection.find({"isbn": isbn}).project(booksProjectionSchema()).toArray();
+            response = await booksCollection.find({"isbn": isbn}).toArray();
         }
 
         let data = {
@@ -211,14 +204,11 @@ const client = new MongoClient(uri, {
         let isbn = req.params.isbn ?? null;
 
         let success = true;
-        let code = 204;
+        let code = 200;
         let errors = [];
         let response = null;
 
-        const book = await booksCollection
-                        .find({"isbn": isbn})
-                        .project(booksProjectionSchema())
-                        .toArray();
+        const book = await booksCollection.find({"isbn": isbn}).project(booksProjectionSchema()).toArray();
 
         if(book.length == 0) {
             success = false;
