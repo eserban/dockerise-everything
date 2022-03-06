@@ -1,1 +1,14 @@
-# dockerise-everything
+# Versioning
+
+
+
+
+# Fonctionnalités de l’application
+
+
+
+# Contribuer
+
+
+
+
