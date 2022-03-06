@@ -31,7 +31,12 @@ BONUS : On y a rajouté un système d'inscription/connexion.
 # Contribuer
 
 Pour l'exécution de l'application via l’environnement de développement sous docker-compose il suffit de se placer dans le dossier du projet et lancer 
-la commande suivante, permettant de créer les images nécessaires et de lancer le conteneur contenant l'API et la base de données MongoDB : 
+la commande suivante, permettant de télécharger les modules nécessaire à l'API :
+```
+npm install
+```
+
+Puis de saisir la commande suivante: permettant de créer les images nécessaires et de lancer le conteneur contenant l'API et la base de données MongoDB : 
 ```
 docker compose up
 ```
